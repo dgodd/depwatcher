@@ -1,0 +1,11 @@
+[package]
+name = "depwatcher"
+version = "0.1.0"
+authors = ["Dave Goddard <dave@goddard.id.au>"]
+
+[dependencies]
+reqwest = "0.8.2"
+serde = "1.0.27"
+serde_json = "*"
+serde_derive = "1.0.27"
+error-chain = "0.11.0"
