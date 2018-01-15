@@ -30,6 +30,12 @@ struct Check {
   #[serde(rename = "ref")]
   version: String,
 }
+#[derive(Serialize, Deserialize, Debug)]
+struct In {
+  #[serde(rename = "ref")]
+  version: String,
+  sha: String,
+}
 
 fn get(name: &str) -> Result<Vec<External>> {
     let mut resp = reqwest::get(&format!("https://rubygems.org/api/v1/versions/{}.json", name))?;
@@ -49,9 +55,24 @@ fn check(name: &str) -> Result<Vec<Check>> {
     Ok(data)
 }
 
+fn find(name: &str, number: &str) -> Result<In> {
+    let data: Vec<External> = get(name)?;
+    match data.iter().find(|x| x.number == number) {
+        Some(x) => Ok(In { version: x.number.clone(), sha: x.sha.clone() }),
+        None => Err("Could not find ref".into()),
+    }
+}
+
 fn main() {
-    let data = check("bundler");
-    match data {
+    match check("bundler") {
+        Ok(d) => println!("{}", serde_json::to_string(&d).expect("Could not serialize")),
+        Err(e) => {
+            println!("Error: {}", e);
+            ::std::process::exit(1);
+        },
+    }
+
+    match find("bundler", "1.15.4") {
         Ok(d) => println!("{}", serde_json::to_string(&d).expect("Could not serialize")),
         Err(e) => {
             println!("Error: {}", e);
